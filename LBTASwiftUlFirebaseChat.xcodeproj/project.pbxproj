@@ -18,6 +18,9 @@
 		847970FE2A24B54600249DC7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 847970FD2A24B54600249DC7 /* Preview Assets.xcassets */; };
 		8479710A2A24D53000249DC7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 847971092A24D53000249DC7 /* GoogleService-Info.plist */; };
 		8479710C2A24DE9100249DC7 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8479710B2A24DE9100249DC7 /* ImagePicker.swift */; };
+		849340FF2A28A1A600A48B84 /* ChatLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849340FE2A28A1A600A48B84 /* ChatLogView.swift */; };
+		849341012A28C2B000A48B84 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849341002A28C2B000A48B84 /* ChatMessage.swift */; };
+		849341032A28C39400A48B84 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849341022A28C39400A48B84 /* Constants.swift */; };
 		84ACC19D2A27451800D60C6F /* UserChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACC19C2A27451800D60C6F /* UserChat.swift */; };
 		84ACC1A02A27490E00D60C6F /* CreateNewMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACC19F2A27490E00D60C6F /* CreateNewMessageView.swift */; };
 		84C0026B2A25D07D000E9F6B /* MainMessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C0026A2A25D07D000E9F6B /* MainMessagesView.swift */; };
@@ -32,6 +35,9 @@
 		847970FD2A24B54600249DC7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		847971092A24D53000249DC7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8479710B2A24DE9100249DC7 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		849340FE2A28A1A600A48B84 /* ChatLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
+		849341002A28C2B000A48B84 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		849341022A28C39400A48B84 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		84ACC19C2A27451800D60C6F /* UserChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserChat.swift; sourceTree = "<group>"; };
 		84ACC19F2A27490E00D60C6F /* CreateNewMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNewMessageView.swift; sourceTree = "<group>"; };
 		84C0026A2A25D07D000E9F6B /* MainMessagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMessagesView.swift; sourceTree = "<group>"; };
@@ -56,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				841C55CF2A261686002DF950 /* FirebaseManager.swift */,
+				849341022A28C39400A48B84 /* Constants.swift */,
 			);
 			path = Utilis;
 			sourceTree = "<group>";
@@ -86,6 +93,7 @@
 				847971092A24D53000249DC7 /* GoogleService-Info.plist */,
 				847970F82A24B54300249DC7 /* ContentView.swift */,
 				84C0026A2A25D07D000E9F6B /* MainMessagesView.swift */,
+				849340FE2A28A1A600A48B84 /* ChatLogView.swift */,
 				8479710B2A24DE9100249DC7 /* ImagePicker.swift */,
 				847970FA2A24B54600249DC7 /* Assets.xcassets */,
 				847970FC2A24B54600249DC7 /* Preview Content */,
@@ -105,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				84ACC19C2A27451800D60C6F /* UserChat.swift */,
+				849341002A28C2B000A48B84 /* ChatMessage.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -198,9 +207,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				849341012A28C2B000A48B84 /* ChatMessage.swift in Sources */,
 				8479710C2A24DE9100249DC7 /* ImagePicker.swift in Sources */,
+				849340FF2A28A1A600A48B84 /* ChatLogView.swift in Sources */,
 				84C0026B2A25D07D000E9F6B /* MainMessagesView.swift in Sources */,
 				84ACC19D2A27451800D60C6F /* UserChat.swift in Sources */,
+				849341032A28C39400A48B84 /* Constants.swift in Sources */,
 				841C55D02A261686002DF950 /* FirebaseManager.swift in Sources */,
 				84ACC1A02A27490E00D60C6F /* CreateNewMessageView.swift in Sources */,
 				847970F92A24B54300249DC7 /* ContentView.swift in Sources */,

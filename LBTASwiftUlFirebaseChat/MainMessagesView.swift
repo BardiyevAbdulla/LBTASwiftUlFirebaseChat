@@ -56,11 +56,18 @@ class MainMessagesViewModel: ObservableObject {
 struct MainMessagesView: View {
     @State var shouldShowLogOutOption = false
     @State var shouldShowNewMessageScreen = false
+    @State var chatUser: ChatUser?
+    @State var shouldNavigateToChatLogView = false
     
     @ObservedObject var viewModel = MainMessagesViewModel()
     var body: some View {
         NavigationView {
+            
             VStack {
+                NavigationLink("", isActive: $shouldNavigateToChatLogView) {
+                    ChatLogView(chatUser: self.chatUser, userId: self.viewModel.userUid ?? "")
+                    
+                }
                 HStack(spacing: 16) {
                     WebImage(url: URL(string: viewModel.chatUser?.profileImageUrl ?? ""))
                         .resizable()
@@ -108,19 +115,25 @@ struct MainMessagesView: View {
                 ScrollView {
                     ForEach(0..<10) { num in
                         VStack {
-                            HStack {
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 32))
-                                    .padding(8)
-                                    .overlay(RoundedRectangle(cornerRadius: 44) .stroke(Color.black, lineWidth: 1))
-                                VStack {
-                                    Text("UserName")
-                                    Text("Message sent to user")
+                            Button {
+                                shouldNavigateToChatLogView.toggle()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 32))
+                                        .padding(8)
+                                        .overlay(RoundedRectangle(cornerRadius: 44) .stroke(Color.black, lineWidth: 1))
+                                    VStack {
+                                        Text("UserName")
+                                        Text("Message sent to user")
+                                    }
+                                    Spacer()
+                                    Text("22d")
+                                        .font(.system(size: 14, weight: .semibold))
                                 }
-                                Spacer()
-                                Text("22d")
-                                    .font(.system(size: 14, weight: .semibold))
                             }
+
+                            
                             Divider()
                                 .padding(.vertical, 8)
                         }
@@ -160,9 +173,12 @@ struct MainMessagesView: View {
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
             CreateNewMessageView(viewModel.userUid ?? "", didSelectNewUser: {
                 user in
-                
+                self.chatUser = user
+                print("user id: \(user.id)")
+                self.shouldNavigateToChatLogView.toggle()
             })
         }
+       
     }
     
 }

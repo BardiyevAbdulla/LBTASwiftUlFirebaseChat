@@ -12,7 +12,9 @@ import SDWebImageSwiftUI
 class CreateNewMessageViewModel: ObservableObject {
     @Published var users = [ChatUser]()
     @Published var errorMassage = ""
+   
     init(uid: String) {
+        
         fetchData(uid)
     }
     
