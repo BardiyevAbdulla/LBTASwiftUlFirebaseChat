@@ -21,6 +21,14 @@ struct ChatUser: Identifiable {
         
     }
     
+    init(uid: String, email: String, profileImageUrl: String) {
+        
+        self.uid = uid
+        self.email = email
+        self.profileImageUrl = profileImageUrl
+        self.name = getName(email)
+    }
+    
     func getName(_ str: String) -> String {
         guard let indexAt = str.firstIndex(of: "@") else { return "" }
         let value = str.prefix(upTo: indexAt)

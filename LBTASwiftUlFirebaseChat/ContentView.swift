@@ -112,6 +112,7 @@ struct ContentView: View {
                 }
                 
             }
+           
             self.didCompleteLoginProcess(uid)
         }
     }
@@ -155,6 +156,7 @@ struct ContentView: View {
             self.didCompleteLoginProcess(res?.user.uid ?? "")
             self.loginStatusMessage = "Successfully logged in as user: \(res?.user.uid ?? "")"
            
+           
         }
     }
     
@@ -171,6 +173,7 @@ struct ContentView: View {
             }
            
             print("Successfully registered user: \(result?.user.uid ?? "")")
+           
             persistImageStorage()
         }
     }

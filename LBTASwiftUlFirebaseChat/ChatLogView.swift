@@ -14,7 +14,7 @@ class ChatLogViewModel: ObservableObject {
     @Published var chatText: String = ""
     @Published var errorMassage:String = ""
     @Published var chatMessages: [ChatMessage] = []
-    
+    @Published var count = 0
     init(userid: String, chatUser: ChatUser?) {
         self.fromId = userid
         self.chatUser = chatUser
@@ -35,8 +35,13 @@ class ChatLogViewModel: ObservableObject {
                 self.errorMassage = "Failed to save to Firebase store \(error)"
                 return
             }
+            
+            self.persistRecentMessage()
             self.chatText = ""
             print("Successfully saved current user sending message")
+            DispatchQueue.main.async {
+                self.count += 1
+            }
         }
         
         let recipientMessageDocument = FirebaseManager.shared.firestore.collection("messages")
@@ -55,6 +60,7 @@ class ChatLogViewModel: ObservableObject {
     
     func fetchMessages() {
         guard let toId = chatUser?.uid else { return }
+        
         FirebaseManager.shared.firestore
             .collection(FirebaseConstant.messages)
             .document(fromId)
@@ -71,12 +77,41 @@ class ChatLogViewModel: ObservableObject {
                         let data = change.document.data()
                         let docId = change.document.documentID
                         self.chatMessages.append(ChatMessage(docId: docId, data: data))
+                        DispatchQueue.main.async {
+                            self.count += 1
+                        }
                     }
                    
                 })
             }
     }
     
+    func persistRecentMessage() {
+        guard let toId = chatUser?.uid else { return }
+        
+        let document = FirebaseManager.shared.firestore
+            .collection(FirebaseConstant.recentMessages)
+            .document(fromId)
+            .collection(FirebaseConstant.messages)
+            .document(toId)
+        
+        let data : [String: Any] = [FirebaseConstant.timestamp : Timestamp(),
+                                    FirebaseConstant.text : self.chatText,
+                                    FirebaseConstant.fromId : fromId,
+                                    FirebaseConstant.toId : toId,
+                                    FirebaseConstant.profileImageUrl : chatUser?.profileImageUrl ?? "",
+                                    FirebaseConstant.email : chatUser?.email ?? ""
+        ]
+      
+        document.setData(data) {error in
+            if let error {
+                print("Failed to save recent message: \(error)")
+                self.errorMassage = "Failed to save recent message: \(error)"
+                return
+            }
+            print("Success to save recent message..")
+        }
+    }
 }
 
 
@@ -103,49 +138,24 @@ struct ChatLogView: View {
     
     private var messageView: some View {
         VStack {
-            ScrollView {
-                ForEach(viewModel.chatMessages) { message in
-                    HStack {
-                        if message.toId == self.userId {
-                            
-                            HStack {
-                                Text (message.text)
-                                    .foregroundColor(.black)
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(8)
-                            Spacer()
-                        } else {
-                            Spacer()
-                            HStack {
-                                Text (message.text)
-                                    .foregroundColor(.white)
-                            }
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(8)
-                           
-                        }
-                       
-                        
-                    }
-                    .padding(.horizontal)
-                }
-                
-                HStack(content: {
-                    Spacer()
-                })
-               
-                .background(Color(white: 0.4, opacity: 1))
-               
-                }
+           MessageView
+           
             .safeAreaInset(edge: .bottom) {
                 chatBottomBar
                     .background(Color.white.ignoresSafeArea())
             }
         }
        
+    }
+    private var DiscriptionPlaceHolder: some View {
+        HStack {
+            Text("Discription")
+                .frame(height: 49)
+                .offset(x: 5, y: -5)
+            Spacer()
+        }
+        
+            
     }
     
     private var chatBottomBar: some View {
@@ -154,9 +164,14 @@ struct ChatLogView: View {
                 .font(.system(size: 24))
                 .foregroundColor(Color(.darkGray))
                 .lineLimit(0)
-           
-            TextField("Description", text: $viewModel.chatText)
+            ZStack {
+                DiscriptionPlaceHolder
+                TextEditor(text: $viewModel.chatText)
+                    .opacity(viewModel.chatText.isEmpty ? 0.5 : 1)
+                    .frame(height: 49)
+            }
             
+                    
             Button {
                 viewModel.sendData()
             } label: {
@@ -171,7 +186,62 @@ struct ChatLogView: View {
         }
         .padding()
     }
+        
+        var MessageView: some View {
+            ScrollView {
+                ScrollViewReader { reader in
+                    VStack {
+                        ForEach(viewModel.chatMessages) { message in
+                            HStack {
+                                if message.toId == userId {
+                                    
+                                    HStack {
+                                        Text (message.text)
+                                            .foregroundColor(.black)
+                                    }
+                                    .padding()
+                                    .background(Color.white)
+                                    .cornerRadius(8)
+                                    Spacer()
+                                } else {
+                                    Spacer()
+                                    HStack {
+                                        Text (message.text)
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding()
+                                    .background(Color.blue)
+                                    .cornerRadius(8)
+                                   
+                                }
+                               
+                                
+                            }
+                            .padding(.horizontal)
+                        }
+                        HStack {
+                            Spacer()
+                        }
+                        .id("Empty")
+                    }
+                   
+                    .onReceive(viewModel.$count) { _ in
+                        reader.scrollTo("Empty", anchor: .bottom)
+                    }
+                }
+               
+                
+                HStack(content: {
+                    Spacer()
+                })
+               
+                .background(Color(white: 0.4, opacity: 1))
+               
+                }
+        }
 }
+
+
 
 struct ChatLogView_Previews: PreviewProvider {
     static var previews: some View {
@@ -180,3 +250,5 @@ struct ChatLogView_Previews: PreviewProvider {
         }
     }
 }
+
+

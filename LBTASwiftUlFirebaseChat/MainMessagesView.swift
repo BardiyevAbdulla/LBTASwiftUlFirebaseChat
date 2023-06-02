@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SDWebImageSwiftUI
-
+import Firebase
 
 class MainMessagesViewModel: ObservableObject {
     @Published var chatUser: ChatUser?
@@ -18,8 +18,43 @@ class MainMessagesViewModel: ObservableObject {
     
     @Published var userUid: String? = "sClEimUajdQJB3NimSZ4co8peEq1"
     
+    @Published var recentMessages: [RecentMessage] = []
+    
     init() {
+        
+        if let uid = StoragePhone.shared.getToken() {
+            self.userUid = uid
+           print("Abdullo: \(uid)")
+        } else { isUserCurrentlyLoggedOut = true; return }
+        
         fetchCurrentUser()
+        fetchRecentMessage()
+    }
+    
+    func fetchRecentMessage() {
+        recentMessages.removeAll()
+        FirebaseManager.shared.firestore
+        .collection(FirebaseConstant.recentMessages)
+        .document(userUid ?? "")
+        .collection(FirebaseConstant.messages)
+        .order(by: FirebaseConstant.timestamp)
+        .addSnapshotListener { snapshot, error in
+            if let error {
+                print("Failed to recent message \(error)")
+                self.errorMassage = error.localizedDescription
+                return
+            }
+            
+            snapshot?.documentChanges.forEach({ change in
+                let docId = change.document.documentID
+                if let index = self.recentMessages.firstIndex(where: {
+                    rm in
+                    return rm.id == docId}) {
+                    self.recentMessages.remove (at: index)
+                }
+                self.recentMessages.insert(.init(doc: docId, data: change.document.data()), at: 0)
+            })
+        }
     }
     
     func fetchCurrentUser(_ uid: String? = nil) {
@@ -67,6 +102,7 @@ struct MainMessagesView: View {
                 NavigationLink("", isActive: $shouldNavigateToChatLogView) {
                     ChatLogView(chatUser: self.chatUser, userId: self.viewModel.userUid ?? "")
                     
+                    
                 }
                 HStack(spacing: 16) {
                     WebImage(url: URL(string: viewModel.chatUser?.profileImageUrl ?? ""))
@@ -103,7 +139,7 @@ struct MainMessagesView: View {
                 .padding()
                 
                 .confirmationDialog("Setting", isPresented: $shouldShowLogOutOption) {
-                    Text("salll")
+                   
                     Button("Sign out", role: .destructive) {
                         viewModel.handleSignOut()
                     }
@@ -113,22 +149,34 @@ struct MainMessagesView: View {
                 Text("What do you want to do")
             }
                 ScrollView {
-                    ForEach(0..<10) { num in
+                    ForEach(viewModel.recentMessages) { recentMessage in
+                       
                         VStack {
                             Button {
+                                chatUser = ChatUser(uid: recentMessage.toId, email: recentMessage.email, profileImageUrl: recentMessage.profileImageUrl)
+                                
                                 shouldNavigateToChatLogView.toggle()
                             } label: {
                                 HStack {
-                                    Image(systemName: "person.fill")
-                                        .font(.system(size: 32))
-                                        .padding(8)
-                                        .overlay(RoundedRectangle(cornerRadius: 44) .stroke(Color.black, lineWidth: 1))
+                                    WebImage(url: URL(string: recentMessage.profileImageUrl))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 64, height: 64)
+                                        .clipped()
+                                        .cornerRadius(64)
+                                        .overlay(RoundedRectangle(cornerRadius: 64) .stroke(Color.black, lineWidth: 1))
+
                                     VStack {
-                                        Text("UserName")
-                                        Text("Message sent to user")
+                                        Text(recentMessage.email)
+                                            .font(.system(size: 16, weight: .bold))
+                                            .foregroundColor(Color(.label))
+                                        Text(recentMessage.text)
+                                            .font(.system(size: 14))
+                                            .foregroundColor(Color(.darkGray))
+                                            .multilineTextAlignment(.leading)
                                     }
                                     Spacer()
-                                    Text("22d")
+                                    Text(recentMessage.timeAgo)
                                         .font(.system(size: 14, weight: .semibold))
                                 }
                             }
@@ -158,16 +206,20 @@ struct MainMessagesView: View {
                         .cornerRadius(24)
                         .shadow(radius: 15)
                         .padding(.horizontal)
+                        .frame(minWidth: 300, maxHeight: 80)
                         
                     }
-                    , alignment: .bottom)
+                    , alignment: .bottom )
+                
             }
            
         }
         .fullScreenCover(isPresented: $viewModel.isUserCurrentlyLoggedOut) {
             ContentView(didCompleteLoginProcess: { uid in
-                
-                viewModel.fetchCurrentUser(uid)
+                StoragePhone.shared.setToken(uid)
+                print(uid)
+                self.viewModel.fetchCurrentUser(uid)
+                self.viewModel.fetchRecentMessage()
             })
         }
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
